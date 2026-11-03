@@ -17,9 +17,6 @@ set(CYTHON_HEADERS_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 # --- Add scripts for Cython ---------------------------------------------------
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/src/scripts/cmake")
-
-include(FindSSE2)
-include(FindAVX2)
 include(CythonExtension)
 
 # --- Compile code -------------------------------------------------------------
