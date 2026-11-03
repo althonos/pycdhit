@@ -17,7 +17,7 @@ void bomb_error(const char *message, const char *message2)
 
 void bomb_warning(const char *message)
 {
-    PyErr_Warn(PyExc_RuntimeWarning, message);
+    PyErr_WarnEx(PyExc_RuntimeWarning, message, 1);
 } // END void bomb_warning
 
 
