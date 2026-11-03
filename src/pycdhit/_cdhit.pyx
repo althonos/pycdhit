@@ -11,16 +11,28 @@ cimport cdhit
 from cdhit.options cimport Options
 from cdhit.seq cimport SequenceDB, Sequence
 
+cdef Options DEFAULT_OPTIONS = Options()
+
 # --- Python imports ---------------------------------------------------------
 
 import array
+import dataclasses
 import typing
 
 __version__ = PROJECT_VERSION
 
 # --- Functions --------------------------------------------------------------
 
-cdef Options DEFAULT_OPTIONS = Options()
+@dataclasses.dataclass(frozen=True)
+class Clustering:
+    clusters: array.array
+    representatives: array.array
+
+    @property
+    def n_clusters(self):
+        """`int`: The number of clusters found in the clustering.
+        """
+        return len(self.representatives)
 
 def cluster(
     sequences: typing.Iterable[str], 
@@ -64,10 +76,17 @@ def cluster(
     db.SortDivide(options)
     db.DoClustering(options)
 
-    out = array.array('Q')
+    # Extract flat clusters and representatives
+    clusters = array.array('Q')
     for k in range(db.sequences.size()):
-        out.append(db.sequences[k].cluster_id)
-    return out
+        clusters.append(db.sequences[k].cluster_id)
+    representatives = array.array('Q')
+    for k in range(db.rep_seqs.size()):
+        representatives.append(db.rep_seqs[k])
+    return Clustering(
+        clusters=clusters,
+        representatives=representatives,
+    )
 
 
 
