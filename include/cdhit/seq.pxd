@@ -87,7 +87,7 @@ cdef extern from "cdhit-common.h":
         # void SwapIn( int seg, bool reponly=false );
         # void SwapOut( int seg );
 
-        void SortDivide(Options& options, bool sort=True)
+        void SortDivide(Options& options, bool sort=True) except +
         # void MakeWordTable( const Options & optioins );
 
         # size_t MinimalMemory( int frag_no, int bsize, int T, const Options & options, size_t extra=0 );
@@ -96,7 +96,7 @@ cdef extern from "cdhit-common.h":
         # 		WorkingParam & param, WorkingBuffer & buf, const Options & options );
 
         # void ComputeDistance( const Options & options );
-        void DoClustering( const Options & options );
+        void DoClustering( const Options & options ) except +
         # void DoClustering( int T, const Options & options );
         # void ClusterTo( SequenceDB & other, const Options & optioins );
         # int  CheckOne( Sequence *seq, WordTable & tab, WorkingParam & par, WorkingBuffer & buf, const Options & opt );

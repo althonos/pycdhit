@@ -66,12 +66,12 @@ cdef extern from "cdhit-common.h":
 
         Options()
 
-        bool SetOptionCommon( const char *flag, const char *value )
-        bool SetOption( const char *flag, const char *value )
-        bool SetOption2D( const char *flag, const char *value )
-        bool SetOptionEST( const char *flag, const char *value )
-        bool SetOptions( int argc, char *argv[], bool twodata=false, bool est=false )
+        bool SetOptionCommon( const char *flag, const char *value ) except +
+        bool SetOption( const char *flag, const char *value ) except +
+        bool SetOption2D( const char *flag, const char *value ) except +
+        bool SetOptionEST( const char *flag, const char *value ) except +
+        bool SetOptions( int argc, char *argv[], bool twodata=false, bool est=false ) except +
 
-        void Validate()
-        void ComputeTableLimits( int min_len, int max_len, int typical_len, size_t mem_need )
-        void Print()
+        void Validate() except +
+        void ComputeTableLimits( int min_len, int max_len, int typical_len, size_t mem_need ) except +
+        void Print() except +

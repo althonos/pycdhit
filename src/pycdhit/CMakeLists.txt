@@ -1,1 +1,1 @@
-cython_extension(_cdhit LINKS cdhit)
+cython_extension(_cdhit LINKS cdhit EXTRA_SOURCES _errors.cpp)

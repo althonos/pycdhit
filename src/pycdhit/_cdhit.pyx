@@ -33,10 +33,10 @@ def cluster(
     cdef SequenceDB  db       = SequenceDB()
     cdef Options     options  = Options()
 
-    options.threads = 1
-    options.input = "n/a"
-    options.output = "n/a"
-
+    options.max_memory = 0  # don't attempt limiting memory
+    options.threads = 1     # use a single thread (for now)
+    options.input = "n/a"   # bogus filename so CD-HIT doesn't complain
+    options.output = "n/a"  # bogus filename so CD-HIT doesn't complain
     options.Validate()
     
     #?
