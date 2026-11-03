@@ -1,8 +1,29 @@
 diff --git a/cdhit-common.c++ b/cdhit-common.c++
-index 9582f22..0b550d3 100644
+index 9582f22..2f77a05 100644
 --- a/cdhit-common.c++
 +++ b/cdhit-common.c++
-@@ -164,7 +164,7 @@ FILE* OpenTempFile( const char *dir = NULL )
+@@ -26,14 +26,15 @@
+ // =============================================================================
+ 
+ #include "cdhit-common.h"
+-#include<valarray>
+-#include<stdint.h>
+-#include<assert.h>
+-#include<limits.h>
++#include <algorithm>
++#include <valarray>
++#include <stdint.h>
++#include <assert.h>
++#include <limits.h>
+ 
+ #ifndef NO_OPENMP
+ 
+-#include<omp.h>
++#include <omp.h>
+ 
+ #define WITH_OPENMP " (+OpenMP)"
+ 
+@@ -164,7 +165,7 @@ FILE* OpenTempFile( const char *dir = NULL )
  }
  static void CleanUpTempFiles()
  {
@@ -11,7 +32,7 @@ index 9582f22..0b550d3 100644
  	temp_files.Clear();
  }
  
-@@ -250,18 +250,18 @@ bool Options::SetOptionCommon( const char *flag, const char *value )
+@@ -250,18 +251,18 @@ bool Options::SetOptionCommon( const char *flag, const char *value )
  		threads  = intval;
  		if( threads > cpu ){
  			threads = cpu;
@@ -34,7 +55,7 @@ index 9582f22..0b550d3 100644
  #endif
  	}else return false;
  	return true;
-@@ -449,32 +449,6 @@ void Options::Print()
+@@ -449,32 +450,6 @@ void Options::Print()
  	printf( "print = %i\n", print );
  }
  
@@ -67,7 +88,27 @@ index 9582f22..0b550d3 100644
  void format_seq(char *seq)
  {
  	int i, j;
-@@ -2250,8 +2224,8 @@ void SequenceDB::SortDivide( Options & options, bool sort )
+@@ -488,7 +463,8 @@ void format_seq(char *seq)
+ 	seq[j] = 0;
+ } // END void format_seq
+ 
+-void strrev(char *p)
++#ifndef strrev
++char* strrev(char *p)
+ {
+   char *q = p;
+   while(q && *q) ++q;
+@@ -496,7 +472,9 @@ void strrev(char *p)
+     *p = *p ^ *q,
+     *q = *p ^ *q,
+     *p = *p ^ *q;
++  return p;
+ }
++#endif
+ 
+ ////For smiple len1 <= len2, len2 is for existing representative
+ ////walk along all diag path of two sequences,
+@@ -2250,8 +2228,8 @@ void SequenceDB::SortDivide( Options & options, bool sort )
  		bomb_warning("Some seqs are too long, please rebuild the program with make parameter "
  				"MAX_SEQ=new-maximum-length (e.g. make MAX_SEQ=10000000)");
  
@@ -78,7 +119,7 @@ index 9582f22..0b550d3 100644
  	// END change all the NR_seq to iseq
  
  	len_n50 = (max_len + min_len) / 2; // will be properly set, if sort is true;
-@@ -2294,7 +2268,7 @@ void SequenceDB::SortDivide( Options & options, bool sort )
+@@ -2294,7 +2272,7 @@ void SequenceDB::SortDivide( Options & options, bool sort )
  			}
  		}
  #endif
@@ -87,7 +128,7 @@ index 9582f22..0b550d3 100644
  		// END sort them from long to short
  	}
  }// END sort_seqs_divide_segs
-@@ -2610,7 +2584,7 @@ void SequenceDB::WriteExtra1D( const Options & options )
+@@ -2610,7 +2588,7 @@ void SequenceDB::WriteExtra1D( const Options & options )
  		fclose( fout );
  	}
  
@@ -96,7 +137,7 @@ index 9582f22..0b550d3 100644
  	int M = rep_seqs.size();
  	Vector<Vector<int> > clusters( M );
  	for (i=0; i<N; i++){
-@@ -2674,7 +2648,7 @@ void SequenceDB::WriteExtra2D( SequenceDB & other, const Options & options )
+@@ -2674,7 +2652,7 @@ void SequenceDB::WriteExtra2D( SequenceDB & other, const Options & options )
  		fclose( fout );
  	}
  
@@ -105,7 +146,7 @@ index 9582f22..0b550d3 100644
  	Vector<Vector<int> > clusters( N );
  	for (i=0; i<N2; i++){
  		int id = sequences[i]->cluster_id;
-@@ -2945,12 +2919,12 @@ void SequenceDB::ClusterOne( Sequence *seq, int id, WordTable & table,
+@@ -2945,12 +2923,12 @@ void SequenceDB::ClusterOne( Sequence *seq, int id, WordTable & table,
  			}
  		}
  	}
@@ -124,7 +165,7 @@ index 9582f22..0b550d3 100644
  }
  #include<assert.h>
  size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options & options, size_t extra )
-@@ -2961,26 +2935,26 @@ size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options &
+@@ -2961,26 +2939,26 @@ size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options &
  	size_t mem, mega = 1000000;
  	int table = T > 1 ? 2 : 1;
  
@@ -157,7 +198,7 @@ index 9582f22..0b550d3 100644
  
  	if(options.max_memory and options.max_memory < mem_need + 50*table ){
  		char msg[200];
-@@ -3024,9 +2998,9 @@ void Options::ComputeTableLimits( int min_len, int max_len, int typical_len, siz
+@@ -3024,9 +3002,9 @@ void Options::ComputeTableLimits( int min_len, int max_len, int typical_len, siz
  		if( max_sequences < MAX_TABLE_SEQ / 100 ) max_sequences = MAX_TABLE_SEQ / 100;
  		if( max_sequences > MAX_TABLE_SEQ ) max_sequences = MAX_TABLE_SEQ;
  	}
@@ -170,7 +211,7 @@ index 9582f22..0b550d3 100644
  }
  void SequenceDB::DoClustering( int T, const Options & options )
  {
-@@ -3105,7 +3079,7 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3105,7 +3083,7 @@ void SequenceDB::DoClustering( int T, const Options & options )
  			if( m > i + 1E3 ) m = i + (N - i) / (2+T);
  		}
  		//printf( "m = %i  %i,  %i\n", i, m, m-i );
@@ -179,7 +220,7 @@ index 9582f22..0b550d3 100644
  		if( last_table.size ){
  			int print = (m-i)/20 + 1;
  			#pragma omp parallel for schedule( dynamic, 1 )
-@@ -3115,9 +3089,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3115,9 +3093,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  				int tid = omp_get_thread_num();
  				CheckOne( seq, last_table, params[tid], buffers[tid], options );
  				if ( options.store_disk && (seq->state & IS_REDUNDANT) ) seq->SwapOut();
@@ -192,7 +233,7 @@ index 9582f22..0b550d3 100644
  			}
  			int may_stop = 0;
  			int self_stop = 0;
-@@ -3162,8 +3136,8 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3162,8 +3140,8 @@ void SequenceDB::DoClustering( int T, const Options & options )
  						if( self_stop && tid ==1 ){
  							float p = (100.0*j)/N;
  							if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -203,7 +244,7 @@ index 9582f22..0b550d3 100644
  								p0 = p;
  							}
  						}
-@@ -3207,9 +3181,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3207,9 +3185,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  			}
  		}else if( i < m ){
  			remaining = remaining/2 + (m - i);
@@ -215,7 +256,7 @@ index 9582f22..0b550d3 100644
  		if( (last_table.size + word_table.size) > tabsize )
  			tabsize = last_table.size + word_table.size;
  		last_table.Clear();
-@@ -3218,9 +3192,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3218,9 +3196,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  		last_table.size = word_table.size;
  		word_table.size = 0;
  	}
@@ -227,7 +268,7 @@ index 9582f22..0b550d3 100644
  	last_table.Clear();
  	word_table.Clear();
  }
-@@ -3526,7 +3500,7 @@ int SequenceDB::CheckOneEST( Sequence *seq, WordTable & table, WorkingParam & pa
+@@ -3526,7 +3504,7 @@ int SequenceDB::CheckOneEST( Sequence *seq, WordTable & table, WorkingParam & pa
  					talign_info[1] = len - talign_info[1] - 1;
  				}
  			}else{
@@ -236,7 +277,7 @@ index 9582f22..0b550d3 100644
  				rc = local_band_align(seqi, seqj, len, len2, mat,
  						best_score, tiden_no, alnln, distance, talign_info,
  						band_left, band_center, band_right, buf);
-@@ -3612,7 +3586,7 @@ void SequenceDB::ComputeDistance( const Options & options )
+@@ -3612,7 +3590,7 @@ void SequenceDB::ComputeDistance( const Options & options )
  		buf.EncodeWords( seq, options.NAA, false );
  		buf.ComputeAAP2( seqi, seq->size );
  		dists[i][i] = 0.0;
@@ -245,7 +286,7 @@ index 9582f22..0b550d3 100644
  		for(j=0; j<i; j++){
  			Sequence *rep = sequences[j];
  			char *seqj = rep->data;
-@@ -3732,7 +3706,7 @@ void SequenceDB::DoClustering( const Options & options )
+@@ -3732,7 +3710,7 @@ void SequenceDB::DoClustering( const Options & options )
  			m ++;
  		}
  		if( m > N ) m = N;
@@ -254,7 +295,7 @@ index 9582f22..0b550d3 100644
  		fflush( stdout );
  		for(int ks=i; ks<m; ks++){ // clustering this block
  			Sequence *seq = sequences[ks];
-@@ -3761,7 +3735,7 @@ void SequenceDB::DoClustering( const Options & options )
+@@ -3761,7 +3739,7 @@ void SequenceDB::DoClustering( const Options & options )
  			}
  			float p = (100.0*j)/N;
  			if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -263,7 +304,7 @@ index 9582f22..0b550d3 100644
  				fflush( stdout );
  				p0 = p;
  			}
-@@ -3770,16 +3744,16 @@ void SequenceDB::DoClustering( const Options & options )
+@@ -3770,16 +3748,16 @@ void SequenceDB::DoClustering( const Options & options )
  		//if( i && i < m ) printf( "\r---------- %6i remaining sequences to the next cycle\n", m-i );
  		word_table.Clear();
  	}
@@ -283,7 +324,7 @@ index 9582f22..0b550d3 100644
  #endif
  }
  
-@@ -3853,9 +3827,9 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3853,9 +3831,9 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  			seq->cluster_id = ks;
  			seq->state |= IS_REP;
  			if ( (ks+1) % 1000 == 0 ) {
@@ -295,7 +336,7 @@ index 9582f22..0b550d3 100644
  			}  
  		}
  		float p0 = 0;
-@@ -3894,7 +3868,7 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3894,7 +3872,7 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  				}
  				float p = (100.0*j)/M;
  				if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -304,7 +345,7 @@ index 9582f22..0b550d3 100644
  					fflush( stdout );
  					p0 = p;
  				}
-@@ -3929,13 +3903,13 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3929,13 +3907,13 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  				}
  				float p = (100.0*j)/M;
  				if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -320,7 +361,7 @@ index 9582f22..0b550d3 100644
  		word_table.Clear();
  		word_table.size = 0;
  		i = m;
-@@ -3956,8 +3930,8 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3956,8 +3934,8 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  		if( not(seq->state & IS_REDUNDANT) ) rep_seqs.Append( i );
  	}
  

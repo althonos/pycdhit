@@ -1,0 +1,13 @@
+diff --git a/cdhit-common.h b/cdhit-common.h
+index ee26448..810a4f3 100644
+--- a/cdhit-common.h
++++ b/cdhit-common.h
+@@ -619,7 +619,7 @@ int local_band_align( char query[], char ref[], int qlen, int rlen, ScoreMatrix
+ 		int &best_score, int &iden_no, int &alnln, float &dist, int *alninfo,
+ 		int band_left, int band_center, int band_right, WorkingBuffer & buffer);
+ 
+-void strrev(char *p);
++char* strrev(char *p);
+ int print_usage_2d (char *arg);
+ int print_usage_est (char *arg);
+ int print_usage_div (char *arg);
