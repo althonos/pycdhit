@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-cdef extern from "cdhit-common.h":
+cdef extern from "cdhit-common.h" nogil:
 
     cppclass Vector[T](vector[T]):
         Vector()

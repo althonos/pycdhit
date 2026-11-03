@@ -6,7 +6,7 @@ from cdhit.options cimport Options
 from cdhit.vector cimport Vector
 
 
-cdef extern from "cdhit-common.h":
+cdef extern from "cdhit-common.h" nogil:
 
     cppclass Sequence:
         char* data

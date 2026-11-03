@@ -1,6 +1,6 @@
 
 
-cdef extern from "cdhit-common.h":
+cdef extern from "cdhit-common.h" nogil:
 
     const char* CDHIT_VERSION
     

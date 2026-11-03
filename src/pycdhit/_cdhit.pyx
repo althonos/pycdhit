@@ -73,8 +73,9 @@ def cluster(
         seq.index = db.sequences.size()
         db.sequences.Append(seq)
 
-    db.SortDivide(options)
-    db.DoClustering(options)
+    with nogil:
+        db.SortDivide(options)
+        db.DoClustering(options)
 
     # Extract flat clusters and representatives
     clusters = array.array('Q')
