@@ -13,18 +13,21 @@ from cdhit.seq cimport SequenceDB, Sequence
 
 # --- Python imports ---------------------------------------------------------
 
+import array
 import typing
 
 __version__ = PROJECT_VERSION
 
 # --- Functions --------------------------------------------------------------
 
+cdef Options DEFAULT_OPTIONS = Options()
+
 def cluster(
     sequences: typing.Iterable[str], 
     *, 
     cpus: typing.Optional[int] = None,
-):
-
+    identity_threshold: float = DEFAULT_OPTIONS.cluster_thd,
+) -> array.array:
     cdef ssize_t     length
     cdef size_t      i
     cdef const char* s
@@ -37,8 +40,14 @@ def cluster(
     options.threads = 1     # use a single thread (for now)
     options.input = "n/a"   # bogus filename so CD-HIT doesn't complain
     options.output = "n/a"  # bogus filename so CD-HIT doesn't complain
-    options.Validate()
     
+    options.cluster_thd = identity_threshold
+    
+    try:
+        options.Validate()
+    except Exception as exc:
+        raise ValueError("Failed to validate parameters") from exc
+
     #?
     options.NAAN = cdhit.NAAN_array[options.NAA]
     db.NAAN = cdhit.NAAN_array[options.NAA]
@@ -55,7 +64,10 @@ def cluster(
     db.SortDivide(options)
     db.DoClustering(options)
 
-    return [db.sequences[k].cluster_id for k in range(db.sequences.size())]
+    out = array.array('Q')
+    for k in range(db.sequences.size()):
+        out.append(db.sequences[k].cluster_id)
+    return out
 
 
 
