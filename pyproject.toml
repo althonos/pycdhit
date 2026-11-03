@@ -13,7 +13,7 @@ license-files = ["COPYING"]
 authors = [
   { name = "Martin Larralde", email = "martin.larralde@embl.de" },
 ]
-keywords = ["bioinformatics", "sequence", "clustering", "protein"]
+keywords = ["bioinformatics", "sequence", "clustering", "nucleotide", "protein"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -78,7 +78,6 @@ cmake.define.CMAKE_LINKER_TYPE = "mold"
 before-build = "pip install scikit-build-core cython"
 build-frontend = { name = "pip", args = ["--no-build-isolation"] }
 build-verbosity = 1
-free-threaded-support = false
 test-command = "python -m unittest pycdhit.tests -v"
 test-extras = ["test"]
 
