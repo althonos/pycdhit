@@ -1,7 +1,9 @@
 # coding: utf-8
 # cython: language_level=3
+"""Bindings to CD-HIT, an accelerated sequence clustering program.
+"""
 
-import typing
+# --- C imports --------------------------------------------------------------
 
 from cpython.unicode cimport PyUnicode_AsUTF8AndSize
 
@@ -9,14 +11,13 @@ cimport cdhit
 from cdhit.options cimport Options
 from cdhit.seq cimport SequenceDB, Sequence
 
+# --- Python imports ---------------------------------------------------------
 
+import typing
 
-# cdef class Builder:
-#     cdef SequenceDB* db
+__version__ = PROJECT_VERSION
 
-#     def __init__(self):
-#         self.db = new SequenceDB()
-
+# --- Functions --------------------------------------------------------------
 
 def cluster(
     sequences: typing.Iterable[str], 
