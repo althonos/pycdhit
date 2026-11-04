@@ -1,5 +1,5 @@
 diff --git a/cdhit-common.h b/cdhit-common.h
-index ee26448..a2f4a11 100644
+index ee26448..99e1edc 100644
 --- a/cdhit-common.h
 +++ b/cdhit-common.h
 @@ -181,7 +181,7 @@ class ScoreMatrix { //Matrix
@@ -11,7 +11,43 @@ index ee26448..a2f4a11 100644
  		void set_to_na();
  		void set_match( int score );
  		void set_mismatch( int score );
-@@ -296,6 +296,7 @@ struct Options
+@@ -191,27 +191,6 @@ class ScoreMatrix { //Matrix
+ typedef NVector<INTs>      VectorIntX;
+ typedef Vector<VectorIntX> MatrixIntX;
+ 
+-
+-extern int NAA1 ;
+-extern int NAA2 ;
+-extern int NAA3 ;
+-extern int NAA4 ;
+-extern int NAA5 ;
+-extern int NAA6 ;
+-extern int NAA7 ;
+-extern int NAA8 ;
+-extern int NAA9 ;
+-extern int NAA10;
+-extern int NAA11;
+-extern int NAA12;
+-extern int NAAN_array[13];
+-
+-void InitNAA( int max );
+-
+-
+-extern int naa_stat_start_percent;
+-extern int naa_stat[5][61][4];
+-
+ struct IndexCount
+ {
+ 	int index;
+@@ -256,6 +235,7 @@ struct Options
+ 	int     NAA;
+ 	int     NAAN;
+ 	int     NAA_top_limit;
++	int 	NAAN_array[13];
+ 
+ 	size_t  max_memory; // -M: 400,000,000 in bytes
+ 	int     min_length; // -l: 10 bases
+@@ -296,6 +276,7 @@ struct Options
  	bool    has2D;
  	bool    isEST;
  	bool    is454;
@@ -19,7 +55,7 @@ index ee26448..a2f4a11 100644
  	bool    useIdentity;
  	bool    useDistance;
  	bool    backupFile;
-@@ -310,6 +311,8 @@ struct Options
+@@ -310,6 +291,8 @@ struct Options
      int     sort_output;  // -sc
      int     sort_outputf; // -sf
  
@@ -28,15 +64,36 @@ index ee26448..a2f4a11 100644
  	Options(){
  		backupFile = false;
  		useIdentity = false;
-@@ -317,6 +320,7 @@ struct Options
+@@ -317,8 +300,10 @@ struct Options
  		has2D = false;
  		isEST = false;
  		is454 = false;
 +		isNucleotide = false;
  		NAA = 5;
  		NAA_top_limit = 5;
++		NAAN_array[0] = 1;
  		cluster_thd = 0.9;
-@@ -420,7 +424,7 @@ struct Sequence
+ 		distance_thd = 0.0;
+ 		max_memory = 800000000;
+@@ -362,6 +347,8 @@ struct Options
+ 	bool SetOption2D( const char *flag, const char *value );
+ 	bool SetOptionEST( const char *flag, const char *value );
+ 	bool SetOptions( int argc, char *argv[], bool twodata=false, bool est=false );
++	
++	void InitNAA( int max );
+ 
+ 	void Validate();
+ 	void ComputeTableLimits( int min_len, int max_len, int typical_len, size_t mem_need );
+@@ -369,8 +356,6 @@ struct Options
+ 	void Print();
+ };
+ 
+-void bomb_error(const char *message);
+-
+ struct Sequence
+ {
+ 	// real sequence, if it is not stored swap file:
+@@ -420,7 +405,7 @@ struct Sequence
  	void Swap( Sequence & other );
  	int Format();
  
@@ -45,24 +102,62 @@ index ee26448..a2f4a11 100644
      void trim(int trim_len);
  
  	void SwapIn();
-@@ -531,7 +535,6 @@ struct WorkingBuffer
+@@ -483,6 +468,7 @@ struct WorkingBuffer
+ 	Vector<int> aan_list_comp;
+ 	Vector<char> seqi_comp;
+ 	int total_bytes;
++	int NAAN_array[13];
+ 
+ 	WorkingBuffer( size_t frag=0, size_t maxlen=0, const Options & options=Options() ){
+ 		Set( frag, maxlen, options );
+@@ -495,6 +481,7 @@ struct WorkingBuffer
+ 		size_t band = max_len*max_len;
+ 		if( est ) m = m * m;
+ 		if( band > options.band_width ) band = options.band_width;
++		std::copy(options.NAAN_array, options.NAAN_array + 13, NAAN_array);
+ 		taap.resize( m );
+ 		aap_list.resize( max_len );
+ 		aap_begin.resize( m );
+@@ -526,13 +513,10 @@ struct WorkingBuffer
+ 		total_bytes += max_len*(band*sizeof(int)+sizeof(VectorInt64));
+ 	}
+ 
+-	int EncodeWords( Sequence *seq, int NA, bool est = false );
++	int EncodeWords( const Sequence *seq, int NA, bool est = false );
+ 	void ComputeAAP( const char *seqi, int size );
  	void ComputeAAP2( const char *seqi, int size );
  };
- extern Vector<int>  Comp_AAN_idx;
+-extern Vector<int>  Comp_AAN_idx;
 -extern ScoreMatrix  mat;
- 
+-
  
  class SequenceDB
-@@ -609,17 +612,17 @@ void bomb_error(const char *message, const char *message2);
+ {
+@@ -594,11 +578,11 @@ class SequenceDB
+ 		//    WorkingParam & param, WorkingBuffer & buf, const Options & options );
+ 
+ 		void ComputeDistance( const Options & options );
+-		void DoClustering( const Options & options );
+-		void DoClustering( int T, const Options & options );
++		void DoClustering( const Options & options, const Vector<int> & Comp_AAN_idx = Vector<int>() );
++		void DoClustering( int T, const Options & options, const Vector<int> & Comp_AAN_idx = Vector<int>() );
+ 		void ClusterTo( SequenceDB & other, const Options & optioins );
+ 		int  CheckOne( Sequence *seq, WordTable & tab, WorkingParam & par, WorkingBuffer & buf, const Options & opt );
+-		int  CheckOneEST( Sequence *seq, WordTable & tab, WorkingParam & par, WorkingBuffer & buf, const Options & opt );
++		int  CheckOneEST( Sequence *seq, WordTable & tab, WorkingParam & par, WorkingBuffer & buf, const Options & opt, const Vector<int>& Comp_AAN_idx = Vector<int>() );
+ 		int  CheckOneAA( Sequence *seq, WordTable & tab, WorkingParam & par, WorkingBuffer & buf, const Options & opt );
+ };
+ 
+@@ -609,17 +593,17 @@ void bomb_error(const char *message, const char *message2);
  void bomb_warning(const char *message);
  void bomb_warning(const char *message, const char *message2);
  void format_seq(char *seq);
 -int diag_test_aapn(int NAA1, char iseq2[], int len1, int len2, 
-+int diag_test_aapn(const Options& options, int NAA1, char iseq2[], int len1, int len2, 
++int diag_test_aapn(const Options& options, char iseq2[], int len1, int len2, 
  		WorkingBuffer & buffer, int &best_sum,
  		int band_width, int &band_left, int &band_center, int &band_right, int required_aa1);
 -int diag_test_aapn_est(int NAA1, char iseq2[], int len1, int len2, 
-+int diag_test_aapn_est(const Options& options, int NAA1, char iseq2[], int len1, int len2, 
++int diag_test_aapn_est(const Options& options, char iseq2[], int len1, int len2, 
  		WorkingBuffer & buffer, int &best_sum,
  		int band_width, int &band_left, int &band_center, int &band_right, int required_aa1);
 -int local_band_align( char query[], char ref[], int qlen, int rlen, ScoreMatrix &mat, 
@@ -75,3 +170,19 @@ index ee26448..a2f4a11 100644
  int print_usage_2d (char *arg);
  int print_usage_est (char *arg);
  int print_usage_div (char *arg);
+@@ -628,12 +612,12 @@ int print_usage_est_2d (char *arg);
+ int upper_bound_length_rep(int len, const Options & options );
+ void cal_aax_cutoff (double &aa1_cutoff, double &aa2_cutoff, double &aan_cutoff,
+ 		double NR_clstr, int tolerance, int naa_stat_start_percent,
+-		int naa_stat[5][61][4], int NAA);
++		const int naa_stat[5][61][4], int NAA);
+ void update_aax_cutoff(double &aa1_cutoff, double &aa2_cutoff, double &aan_cutoff,
+ 		int tolerance, int naa_stat_start_percent,
+-		int naa_stat[5][61][4], int NAA, int iden);
++		const int naa_stat[5][61][4], int NAA, int iden);
+ 
+-int calc_ann_list(int len, char *seqi, int NAA, int& aan_no, Vector<int> & aan_list, Vector<INTs> & aan_list_no, bool est=false);
++int calc_ann_list(const int* NAAN_array, int len, char *seqi, int NAA, int& aan_no, Vector<int> & aan_list, Vector<INTs> & aan_list_no, bool est=false);
+ 
+ float current_time();
+ 

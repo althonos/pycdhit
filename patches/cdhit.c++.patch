@@ -1,0 +1,34 @@
+diff --git a/cdhit.c++ b/cdhit.c++
+index 056d7f7..e740b58 100644
+--- a/cdhit.c++
++++ b/cdhit.c++
+@@ -23,13 +23,13 @@
+ 
+ #include "cdhit-common.h"
+ 
+-Options options;
+-SequenceDB seq_db;
+-
+ 
+ ////////////////////////////////////  MAIN /////////////////////////////////////
+ int main(int argc, char *argv[])
+ {
++	Options options;
++	SequenceDB seq_db;
++
+ 	string db_in;
+ 	string db_out;
+ 
+@@ -44,9 +44,9 @@ int main(int argc, char *argv[])
+ 	db_in = options.input;
+ 	db_out = options.output;
+ 
+-	InitNAA( MAX_UAA );
+-	options.NAAN = NAAN_array[options.NAA];
+-	seq_db.NAAN = NAAN_array[options.NAA];
++	options.InitNAA( MAX_UAA );
++	options.NAAN = options.NAAN_array[options.NAA];
++	seq_db.NAAN = options.NAAN_array[options.NAA];
+ 
+ 	//printf( "%i  %i  %i\n", sizeof(NVector<IndexCount>), seq_db.NAAN, sizeof(NVector<IndexCount>) * seq_db.NAAN );
+ 

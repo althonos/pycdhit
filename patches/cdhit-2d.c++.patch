@@ -1,0 +1,35 @@
+diff --git a/cdhit-2d.c++ b/cdhit-2d.c++
+index 0b089d8..143da11 100644
+--- a/cdhit-2d.c++
++++ b/cdhit-2d.c++
+@@ -28,13 +28,13 @@
+ // by deault, only seqs in db2 that are shorter than rep in db1 
+ // are clustered to the rep in db1
+ 
+-Options options;
+-SequenceDB seq_db;
+-SequenceDB seq_db2;
+-
+ ////////////////////////////////////  MAIN /////////////////////////////////////
+ int main(int argc, char **argv)
+ {
++	Options options;
++	SequenceDB seq_db;
++	SequenceDB seq_db2;
++
+ 	string db_in;
+ 	string db_in2;
+ 	string db_out;
+@@ -51,9 +51,9 @@ int main(int argc, char **argv)
+ 	db_in2 = options.input2;
+ 	db_out = options.output;
+ 
+-	InitNAA( MAX_UAA );
+-	options.NAAN = NAAN_array[options.NAA];
+-	seq_db.NAAN = seq_db2.NAAN = NAAN_array[options.NAA];
++	options.InitNAA( MAX_UAA );
++	options.NAAN = options.NAAN_array[options.NAA];
++	seq_db.NAAN = seq_db2.NAAN = options.NAAN_array[options.NAA];
+ 
+ 	seq_db.Read( db_in.c_str(), options );
+ 	cout << "total seq in db1: " << seq_db.sequences.size() << endl;

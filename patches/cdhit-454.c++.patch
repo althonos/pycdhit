@@ -1,0 +1,66 @@
+diff --git a/cdhit-454.c++ b/cdhit-454.c++
+index 4b8d0e9..11007bc 100644
+--- a/cdhit-454.c++
++++ b/cdhit-454.c++
+@@ -27,9 +27,6 @@
+ #undef MAX_UAA
+ #define MAX_UAA 4
+ 
+-Options options;
+-SequenceDB seq_db;
+-
+ // matrix below is for highly similar seqs
+ // with this matrix, alignment can be maintained if there is a mismatch
+ // at very end of alignment
+@@ -48,20 +45,21 @@ int myBLOSUM62_na2[] = {
+ //0  1  2  3  3  4
+ };
+ 
+-void setaa_to_na();
+-
+ ////////////////////////////////////  MAIN /////////////////////////////////////
+ int main(int argc, char *argv[])
+ {
++	Options options;
++	SequenceDB seq_db;
++
+ 	string db_in;
+ 	string db_out;
+ 
+ 	options.isEST = 1;
+ 	options.is454 = 1;
+ 	options.NAA = 10;
+-	options.NAAN = NAA8;
++	options.NAAN = options.NAAN_array[8];
+ 	options.NAA_top_limit = 12;
+-	seq_db.NAAN = NAA8;
++	seq_db.NAAN = options.NAAN_array[8];
+ 
+ 	options.cluster_thd = 0.98;
+ 	options.band_width = 10;
+@@ -69,9 +67,9 @@ int main(int argc, char *argv[])
+ 	options.des_len = 0;
+ 	options.option_r = 0;
+ 
+-	setaa_to_na();
+-	mat.set_gap(-3,-1); //instead of -6 -1 to maintain maxium length of alignment
+-	mat.set_matrix(myBLOSUM62_na2);
++	options.isNucleotide = true;
++	options.mat.set_gap(-3,-1); //instead of -6 -1 to maintain maxium length of alignment
++	options.mat.set_matrix(myBLOSUM62_na2);
+ 
+ 	float begin_time = current_time();
+ 	float end_time;
+@@ -84,9 +82,9 @@ int main(int argc, char *argv[])
+ 	db_in = options.input;
+ 	db_out = options.output;
+ 
+-	InitNAA( MAX_UAA );
+-	options.NAAN = NAAN_array[options.NAA];
+-	seq_db.NAAN = NAAN_array[options.NAA];
++	options.InitNAA( MAX_UAA );
++	options.NAAN = options.NAAN_array[options.NAA];
++	seq_db.NAAN = options.NAAN_array[options.NAA];
+ 
+ 	//printf( "%i  %i  %i\n", sizeof(NVector<IndexCount>), seq_db.NAAN, sizeof(NVector<IndexCount>) * seq_db.NAAN );
+ 

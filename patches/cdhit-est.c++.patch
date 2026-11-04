@@ -1,0 +1,72 @@
+diff --git a/cdhit-est.c++ b/cdhit-est.c++
+index 893472d..93a1a50 100644
+--- a/cdhit-est.c++
++++ b/cdhit-est.c++
+@@ -30,17 +30,16 @@
+ 
+ //over-write some defs in cd-hi-init.h for est version
+ 
+-void setaa_to_na();
+ void make_comp_short_word_index(int NAA, int *NAAN_array, Vector<int> & Comp_AAN_idx);
+ void make_comp_iseq(int len, char *iseq_comp, char *iseq);
+ 
+ 
+-Options options;
+-SequenceDB seq_db;
+-
+ ////////////////////////////////////  MAIN /////////////////////////////////////
+ int main(int argc, char **argv) 
+ {
++	Options options;
++	SequenceDB seq_db;
++
+ 	string db_in;
+ 	string db_out;
+ 	string db_in_pe;
+@@ -48,15 +47,17 @@ int main(int argc, char **argv)
+ 
+ 	options.cluster_thd = 0.95;
+ 	options.NAA = 10;
+-	options.NAAN = NAA8;
+-	seq_db.NAAN = NAA8;
++	options.NAAN = options.NAAN_array[8];
++	seq_db.NAAN = options.NAAN_array[8];
+ 	options.NAA_top_limit = 12;
+-	setaa_to_na();
+-	mat.set_to_na(); //mat.set_gap(-6,-1);
++	options.isNucleotide = true;
++	options.mat.set_to_na(); //mat.set_gap(-6,-1);
+ 
+ 	float begin_time = current_time();
+ 	float end_time;
+ 
++	Vector<int> Comp_AAN_idx;
++
+ 	// ***********************************    parse command line and open file
+ 	if (argc < 5) print_usage_est(argv[0]);
+ 	if (options.SetOptions( argc, argv, false, true ) == 0) print_usage_est(argv[0]);
+@@ -67,12 +68,12 @@ int main(int argc, char **argv)
+ 	db_out    = options.output;
+ 	db_out_pe = options.output_pe;
+ 
+-	InitNAA( MAX_UAA );
+-	seq_db.NAAN = NAAN_array[options.NAA];
++	options.InitNAA( MAX_UAA );
++	seq_db.NAAN = options.NAAN_array[options.NAA];
+ 
+ 	if ( options.option_r ) {
+ 		Comp_AAN_idx.resize( seq_db.NAAN );
+-		make_comp_short_word_index(options.NAA, NAAN_array, Comp_AAN_idx);
++		make_comp_short_word_index(options.NAA, options.NAAN_array, Comp_AAN_idx);
+ 	}
+ 
+         if ( options.PE_mode ) {seq_db.Read( db_in.c_str(), db_in_pe.c_str(), options );}
+@@ -80,7 +81,7 @@ int main(int argc, char **argv)
+ 
+ 	cout << "total seq: " << seq_db.sequences.size() << endl;
+ 	seq_db.SortDivide( options );
+-	seq_db.DoClustering( options );
++	seq_db.DoClustering( options, Comp_AAN_idx );
+ 
+ 	printf( "writing new database\n" );
+         if ( options.PE_mode ) { seq_db.WriteClusters( db_in.c_str(), db_in_pe.c_str(), db_out.c_str(), db_out_pe.c_str(), options ); }

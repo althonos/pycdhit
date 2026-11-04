@@ -1,0 +1,20 @@
+diff --git a/cdhit-div.c++ b/cdhit-div.c++
+index 7ffebbb..5fc3817 100644
+--- a/cdhit-div.c++
++++ b/cdhit-div.c++
+@@ -23,12 +23,12 @@
+ 
+ #include "cdhit-common.h"
+ 
+-Options options;
+-SequenceDB seq_db;
+-
+ ////////////////////////////////////  MAIN /////////////////////////////////////
+ int main(int argc, char *argv[])
+ {
++	Options options;
++	SequenceDB seq_db;
++
+ 	string db_in;
+ 	string db_out;
+ 	int i, div = 1;

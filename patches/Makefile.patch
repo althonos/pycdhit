@@ -1,0 +1,67 @@
+diff --git a/Makefile b/Makefile
+index 796e582..523ecbd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -56,48 +56,27 @@ clean:
+ 
+ # programs
+ 
+-cd-hit: cdhit-common.o cdhit-utility.o cdhit.o
+-	$(CC) $(CCFLAGS) cdhit.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit
++cd-hit: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+-cd-hit-2d: cdhit-common.o cdhit-utility.o cdhit-2d.o
+-	$(CC) $(CCFLAGS) cdhit-2d.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit-2d
++cd-hit-2d: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit-2d.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+-cd-hit-est: cdhit-common.o cdhit-utility.o cdhit-est.o
+-	$(CC) $(CCFLAGS) cdhit-est.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit-est
++cd-hit-est: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit-est.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+-cd-hit-est-2d: cdhit-common.o cdhit-utility.o cdhit-est-2d.o
+-	$(CC) $(CCFLAGS) cdhit-est-2d.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit-est-2d
++cd-hit-est-2d: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit-est-2d.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+-cd-hit-div: cdhit-common.o cdhit-utility.o cdhit-div.o
+-	$(CC) $(CCFLAGS) cdhit-div.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit-div
++cd-hit-div: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit-div.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+-cd-hit-454: cdhit-common.o cdhit-utility.o cdhit-454.o
+-	$(CC) $(CCFLAGS) cdhit-454.o cdhit-common.o cdhit-utility.o $(LDFLAGS) cd-hit-454
++cd-hit-454: cdhit-common.o cdhit-error.o cdhit-utility.o cdhit-454.o
++	$(CC) $(CCFLAGS) $^ $(LDFLAGS) $@
+ 
+ # objects
+-cdhit-common.o: cdhit-common.c++ cdhit-common.h
+-	$(CC) $(CCFLAGS) cdhit-common.c++ -c
+-
+-cdhit-utility.o: cdhit-utility.c++ cdhit-utility.h
+-	$(CC) $(CCFLAGS) cdhit-utility.c++ -c
+-
+-cdhit.o: cdhit.c++ cdhit-utility.h
+-	$(CC) $(CCFLAGS) cdhit.c++ -c
+-
+-cdhit-2d.o: cdhit-2d.c++ cdhit-utility.h
+-	$(CC) $(CCFLAGS) cdhit-2d.c++ -c
+-
+-cdhit-est.o: cdhit-est.c++ cdhit-utility.h
+-	$(CC) $(CCFLAGS) cdhit-est.c++ -c
+-
+-cdhit-est-2d.o: cdhit-est-2d.c++ cdhit-utility.h
+-	$(CC) $(CCFLAGS) cdhit-est-2d.c++ -c
+-
+-cdhit-div.o: cdhit-div.c++ cdhit-common.h
+-	$(CC) $(CCFLAGS) cdhit-div.c++ -c
+-
+-cdhit-454.o: cdhit-454.c++ cdhit-common.h
+-	$(CC) $(CCFLAGS) cdhit-454.c++ -c
++%.o: %.c++ cdhit-common.h cdhit-utility.h
++	$(CC) $(CCFLAGS) $< -c -o $@
+ 
+ PREFIX ?= /usr/local/bin
+ 
