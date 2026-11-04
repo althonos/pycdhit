@@ -1,5 +1,5 @@
 diff --git a/cdhit-common.c++ b/cdhit-common.c++
-index 9582f22..2f77a05 100644
+index 9582f22..83fa384 100644
 --- a/cdhit-common.c++
 +++ b/cdhit-common.c++
 @@ -26,14 +26,15 @@
@@ -23,7 +23,49 @@ index 9582f22..2f77a05 100644
  
  #define WITH_OPENMP " (+OpenMP)"
  
-@@ -164,7 +165,7 @@ FILE* OpenTempFile( const char *dir = NULL )
+@@ -49,14 +50,14 @@
+ //class function definition
+ const char aa[] = {"ARNDCQEGHILKMFPSTWYVBZX"};
+ //{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,2,6,20};
+-int aa2idx[] = {0, 2, 4, 3, 6, 13,7, 8, 9,20,11,10,12, 2,20,14,
++const int aa2idx[] = {0, 2, 4, 3, 6, 13,7, 8, 9,20,11,10,12, 2,20,14,
+                 5, 1,15,16,20,19,17,20,18, 6};
+     // idx for  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P
+     //          Q  R  S  T  U  V  W  X  Y  Z
+     // so  aa2idx[ X - 'A'] => idx_of_X, eg aa2idx['A' - 'A'] => 0,
+     // and aa2idx['M'-'A'] => 12
+ 
+-int BLOSUM62[] = {
++const int BLOSUM62[] = {
+   4,                                                                  // A
+  -1, 5,                                                               // R
+  -2, 0, 6,                                                            // N
+@@ -85,13 +86,13 @@ int BLOSUM62[] = {
+ };
+ 
+ 
+-int na2idx[] = {0, 4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4,
++const int na2idx[] = {0, 4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+                 4, 4, 4, 3, 3, 4, 4, 4, 4, 4};
+     // idx for  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P
+     //          Q  R  S  T  U  V  W  X  Y  Z
+     // so aa2idx[ X - 'A'] => idx_of_X, eg aa2idx['A' - 'A'] => 0,
+     // and aa2idx['M'-'A'] => 4
+-int BLOSUM62_na[] = {
++const int BLOSUM62_na[] = {
+   2,                  // A
+  -2, 2,               // C
+  -2,-2, 2,            // G
+@@ -103,8 +104,6 @@ int BLOSUM62_na[] = {
+ //0  1  2  3  3  4  5
+ };
+ 
+-void setaa_to_na();
+-
+ struct TempFile
+ {
+ 	FILE *file;
+@@ -164,7 +163,7 @@ FILE* OpenTempFile( const char *dir = NULL )
  }
  static void CleanUpTempFiles()
  {
@@ -32,7 +74,16 @@ index 9582f22..2f77a05 100644
  	temp_files.Clear();
  }
  
-@@ -250,18 +251,18 @@ bool Options::SetOptionCommon( const char *flag, const char *value )
+@@ -198,8 +197,6 @@ void InitNAA( int max )
+ 	NAA12 = NAAN_array[12] = NAA6 * NAA6;
+ }
+ 
+-extern Options options;
+-ScoreMatrix mat;
+ Vector<int> Comp_AAN_idx;
+ 
+ void make_comp_iseq(int len, char *iseq_comp, char *iseq)
+@@ -250,18 +247,18 @@ bool Options::SetOptionCommon( const char *flag, const char *value )
  		threads  = intval;
  		if( threads > cpu ){
  			threads = cpu;
@@ -55,7 +106,19 @@ index 9582f22..2f77a05 100644
  #endif
  	}else return false;
  	return true;
-@@ -449,32 +450,6 @@ void Options::Print()
+@@ -309,9 +306,9 @@ bool Options::SetOptionEST( const char *flag, const char *value )
+ 		for(i=0; i<n; i++){
+ 			char ch = toupper( letters[i] );
+ 			if( ch < 'A' || ch > 'Z' ) continue;
+-			na2idx[ ch - 'A' ] = 5;
++			bomb_error("unsupported"); // FIXME // na2idx[ ch - 'A' ] = 5;
+ 		}
+-		setaa_to_na();
++		// setaa_to_na(); // FIXME
+ 	}else return false;
+ 	return true;
+ }
+@@ -449,32 +446,6 @@ void Options::Print()
  	printf( "print = %i\n", print );
  }
  
@@ -88,7 +151,7 @@ index 9582f22..2f77a05 100644
  void format_seq(char *seq)
  {
  	int i, j;
-@@ -488,7 +463,8 @@ void format_seq(char *seq)
+@@ -488,7 +459,8 @@ void format_seq(char *seq)
  	seq[j] = 0;
  } // END void format_seq
  
@@ -98,7 +161,7 @@ index 9582f22..2f77a05 100644
  {
    char *q = p;
    while(q && *q) ++q;
-@@ -496,7 +472,9 @@ void strrev(char *p)
+@@ -496,7 +468,9 @@ void strrev(char *p)
      *p = *p ^ *q,
      *q = *p ^ *q,
      *p = *p ^ *q;
@@ -108,7 +171,130 @@ index 9582f22..2f77a05 100644
  
  ////For smiple len1 <= len2, len2 is for existing representative
  ////walk along all diag path of two sequences,
-@@ -2250,8 +2228,8 @@ void SequenceDB::SortDivide( Options & options, bool sort )
+@@ -514,7 +488,7 @@ void strrev(char *p)
+ ////extreme left (-)            XXXXXXXXXXXXXXXXXX               seq2, rep seq
+ ////              XXXXXXXXXXXXXXX   band = -(len1-1)             seq1
+ ////index of diag_score = band+len1-1;
+-int diag_test_aapn(int NAA1, char iseq2[], int len1, int len2, WorkingBuffer & buffer,
++int diag_test_aapn(const Options& options, int NAA1, char iseq2[], int len1, int len2, WorkingBuffer & buffer,
+ 		int &best_sum, int band_width, int &band_left, int &band_center, int &band_right, int required_aa1)
+ {
+ 	int i, i1, j, k;
+@@ -611,7 +585,7 @@ int diag_test_aapn(int NAA1, char iseq2[], int len1, int len2, WorkingBuffer & b
+ // END diag_test_aapn
+  
+ 
+-int diag_test_aapn_est(int NAA1, char iseq2[], int len1, int len2, WorkingBuffer & buffer, 
++int diag_test_aapn_est(const Options& options, int NAA1, char iseq2[], int len1, int len2, WorkingBuffer & buffer, 
+         int &best_sum, int band_width, int &band_left, int &band_center, int &band_right, int required_aa1)
+ {
+ 	int i, i1, j, k;
+@@ -786,7 +760,7 @@ mat is matrix, return ALN_PAIR class
+ 
+ */
+ 
+-int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatrix &mat, 
++int local_band_align( char iseq1[], char iseq2[], int len1, int len2, const Options &options, 
+ 		int &best_score, int &iden_no, int &alnln, float &dist, int *alninfo,
+ 		int band_left, int band_center, int band_right, WorkingBuffer & buffer)
+ {
+@@ -852,7 +826,7 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 			j1 = k-band_left;
+ 			// penalty for leading gap opening = penalty for gap extension
+             // each of the left side query hunging residues give ext_gap (-1)
+-			score_mat[i][j1] =  mat.ext_gap * i;
++			score_mat[i][j1] =  options.mat.ext_gap * i;
+ 			back_mat[i][j1] = DP_BACK_TOP;
+ 		}
+ 		back_mat[-tband][tband-band_left] = DP_BACK_NONE;
+@@ -862,13 +836,13 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 		int tband = (band_left > 0) ? band_left : 0;
+ 		for (j=tband; j<=band_right; j++) {
+ 			j1 = j-band_left;
+-			score_mat[0][j1] = mat.ext_gap * j;
++			score_mat[0][j1] = options.mat.ext_gap * j;
+ 			back_mat[0][j1] = DP_BACK_LEFT;
+ 		}
+ 		back_mat[0][tband-band_left] = DP_BACK_NONE;
+ 	}
+ 
+-	int gap_open[2] = { mat.gap, mat.ext_gap };
++	int gap_open[2] = { options.mat.gap, options.mat.ext_gap };
+ 	int max_diag = band_center - band_left;
+ 	int extra_score[4] = { 4, 3, 2, 1 };
+ 	for (i=1; i<=len1; i++) {
+@@ -881,7 +855,7 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 
+ 			int ci = iseq1[i-1];
+ 			int cj = iseq2[j-1];
+-			int sij = mat.matrix[ci][cj];
++			int sij = options.mat.matrix[ci][cj];
+ 			//int iden_ij = (ci == cj);
+ 			int s1, k0, back;
+ 
+@@ -897,7 +871,7 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 
+ 			if( j1 > 0 ){
+ 				gap = gap0;
+-				if( back_mat[i][j1-1] == DP_BACK_LEFT ) gap = mat.ext_gap;
++				if( back_mat[i][j1-1] == DP_BACK_LEFT ) gap = options.mat.ext_gap;
+ 				if( (score = score_mat[i][j1-1] + gap) > best_score1 ){
+ 					back = DP_BACK_LEFT;
+ 					best_score1 = score;
+@@ -905,7 +879,7 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 			}
+ 			if(j1+1<band_width){
+ 				gap = gap0;
+-				if( back_mat[i-1][j1+1] == DP_BACK_TOP ) gap = mat.ext_gap;
++				if( back_mat[i-1][j1+1] == DP_BACK_TOP ) gap = options.mat.ext_gap;
+ 				if( (score = score_mat[i-1][j1+1] + gap) > best_score1 ){
+ 					back = DP_BACK_TOP;
+ 					best_score1 = score;
+@@ -1194,11 +1168,6 @@ int local_band_align( char iseq1[], char iseq2[], int len1, int len2, ScoreMatri
+ 
+ 
+ 
+-void setaa_to_na()
+-{
+-	int i;
+-	for (i=0; i<26; i++) aa2idx[i]   = na2idx[i];
+-} // END void setaa_to_na
+ 
+ 
+ /////////////////
+@@ -1220,7 +1189,7 @@ void ScoreMatrix::set_gap(int gap1, int ext_gap1)
+ 	ext_gap = MAX_SEQ * ext_gap1;
+ }
+ 
+-void ScoreMatrix::set_matrix(int *mat1)
++void ScoreMatrix::set_matrix(const int *mat1)
+ {
+ 	int i, j, k;
+ 	k = 0;
+@@ -1611,10 +1580,11 @@ void Sequence::trim(int trim_len) {
+     size = trim_len;
+     if (size) data[size]=0;
+ }
+-void Sequence::ConvertBases()
++void Sequence::ConvertBases( bool nucleotide )
+ {
+ 	int i;
+-	for(i=0; i<size; i++) data[i] = aa2idx[data[i] - 'A'];
++	const int* idx = nucleotide ? na2idx : aa2idx;
++	for(i=0; i<size; i++) data[i] = idx[data[i] - 'A'];
+ }
+ 
+ void Sequence::Swap( Sequence & other )
+@@ -2239,7 +2209,7 @@ void SequenceDB::SortDivide( Options & options, bool sort )
+ 		total_letter += len;
+ 		if (len > max_len) max_len = len;
+ 		if (len < min_len) min_len = len;
+-		if (seq->swap == NULL) seq->ConvertBases();
++		if (seq->swap == NULL) seq->ConvertBases( options.isNucleotide );
+ 		if( seq->identifier ) total_desc += strlen( seq->identifier );
+ 	}
+ 	options.max_entries = max_len * MAX_TABLE_SEQ;
+@@ -2250,8 +2220,8 @@ void SequenceDB::SortDivide( Options & options, bool sort )
  		bomb_warning("Some seqs are too long, please rebuild the program with make parameter "
  				"MAX_SEQ=new-maximum-length (e.g. make MAX_SEQ=10000000)");
  
@@ -119,7 +305,7 @@ index 9582f22..2f77a05 100644
  	// END change all the NR_seq to iseq
  
  	len_n50 = (max_len + min_len) / 2; // will be properly set, if sort is true;
-@@ -2294,7 +2272,7 @@ void SequenceDB::SortDivide( Options & options, bool sort )
+@@ -2294,7 +2264,7 @@ void SequenceDB::SortDivide( Options & options, bool sort )
  			}
  		}
  #endif
@@ -128,7 +314,7 @@ index 9582f22..2f77a05 100644
  		// END sort them from long to short
  	}
  }// END sort_seqs_divide_segs
-@@ -2610,7 +2588,7 @@ void SequenceDB::WriteExtra1D( const Options & options )
+@@ -2610,7 +2580,7 @@ void SequenceDB::WriteExtra1D( const Options & options )
  		fclose( fout );
  	}
  
@@ -137,7 +323,7 @@ index 9582f22..2f77a05 100644
  	int M = rep_seqs.size();
  	Vector<Vector<int> > clusters( M );
  	for (i=0; i<N; i++){
-@@ -2674,7 +2652,7 @@ void SequenceDB::WriteExtra2D( SequenceDB & other, const Options & options )
+@@ -2674,7 +2644,7 @@ void SequenceDB::WriteExtra2D( SequenceDB & other, const Options & options )
  		fclose( fout );
  	}
  
@@ -146,7 +332,25 @@ index 9582f22..2f77a05 100644
  	Vector<Vector<int> > clusters( N );
  	for (i=0; i<N2; i++){
  		int id = sequences[i]->cluster_id;
-@@ -2945,12 +2923,12 @@ void SequenceDB::ClusterOne( Sequence *seq, int id, WordTable & table,
+@@ -2769,7 +2739,7 @@ void update_aax_cutoff(double &aa1_cutoff, double &aa2_cutoff, double &aan_cutof
+ 	return;  
+ } // END update_aax_cutoff
+ 
+-void WorkingParam::ComputeRequiredBases( int NAA, int ss, const Options & option )
++void WorkingParam::ComputeRequiredBases( int NAA, int ss, const Options & options )
+ {
+ 	// d: distance, fraction of errors;
+ 	// e: number of errors;
+@@ -2817,7 +2787,7 @@ void WorkingParam::ComputeRequiredBases( int NAA, int ss, const Options & option
+ 	int aas_old = int (aas_cutoff* (double) len_eff);
+ 	int aan_old = int (aan_cutoff* (double) len_eff);
+ 
+-	double thd = option.cluster_thd;
++	double thd = options.cluster_thd;
+ 	//double rest = (len_eff - ss) / double(len_eff * ss);
+ 	double rest = (len_eff - NAA) / double(len_eff * NAA);
+ 	double thd0 = 1.0 - rest;
+@@ -2945,12 +2915,12 @@ void SequenceDB::ClusterOne( Sequence *seq, int id, WordTable & table,
  			}
  		}
  	}
@@ -165,7 +369,7 @@ index 9582f22..2f77a05 100644
  }
  #include<assert.h>
  size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options & options, size_t extra )
-@@ -2961,26 +2939,26 @@ size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options &
+@@ -2961,26 +2931,26 @@ size_t SequenceDB::MinimalMemory( int frag_no, int bsize, int T, const Options &
  	size_t mem, mega = 1000000;
  	int table = T > 1 ? 2 : 1;
  
@@ -198,7 +402,13 @@ index 9582f22..2f77a05 100644
  
  	if(options.max_memory and options.max_memory < mem_need + 50*table ){
  		char msg[200];
-@@ -3024,9 +3002,9 @@ void Options::ComputeTableLimits( int min_len, int max_len, int typical_len, siz
+@@ -3019,14 +2989,14 @@ void Options::ComputeTableLimits( int min_len, int max_len, int typical_len, siz
+ 	max_entries = (size_t)(scale * (500*max_len + 500000*typical_len + 50000000));
+ 	if( max_memory ){
+ 		double frac = max_sequences / (double) max_entries;
+-		max_entries = (options.max_memory - mem_need) / sizeof(IndexCount);
++		max_entries = (max_memory - mem_need) / sizeof(IndexCount);
+ 		max_sequences = (size_t)(max_entries * frac);
  		if( max_sequences < MAX_TABLE_SEQ / 100 ) max_sequences = MAX_TABLE_SEQ / 100;
  		if( max_sequences > MAX_TABLE_SEQ ) max_sequences = MAX_TABLE_SEQ;
  	}
@@ -211,7 +421,7 @@ index 9582f22..2f77a05 100644
  }
  void SequenceDB::DoClustering( int T, const Options & options )
  {
-@@ -3105,7 +3083,7 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3105,7 +3075,7 @@ void SequenceDB::DoClustering( int T, const Options & options )
  			if( m > i + 1E3 ) m = i + (N - i) / (2+T);
  		}
  		//printf( "m = %i  %i,  %i\n", i, m, m-i );
@@ -220,7 +430,7 @@ index 9582f22..2f77a05 100644
  		if( last_table.size ){
  			int print = (m-i)/20 + 1;
  			#pragma omp parallel for schedule( dynamic, 1 )
-@@ -3115,9 +3093,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3115,9 +3085,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  				int tid = omp_get_thread_num();
  				CheckOne( seq, last_table, params[tid], buffers[tid], options );
  				if ( options.store_disk && (seq->state & IS_REDUNDANT) ) seq->SwapOut();
@@ -233,7 +443,7 @@ index 9582f22..2f77a05 100644
  			}
  			int may_stop = 0;
  			int self_stop = 0;
-@@ -3162,8 +3140,8 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3162,8 +3132,8 @@ void SequenceDB::DoClustering( int T, const Options & options )
  						if( self_stop && tid ==1 ){
  							float p = (100.0*j)/N;
  							if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -244,7 +454,7 @@ index 9582f22..2f77a05 100644
  								p0 = p;
  							}
  						}
-@@ -3207,9 +3185,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3207,9 +3177,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  			}
  		}else if( i < m ){
  			remaining = remaining/2 + (m - i);
@@ -256,7 +466,7 @@ index 9582f22..2f77a05 100644
  		if( (last_table.size + word_table.size) > tabsize )
  			tabsize = last_table.size + word_table.size;
  		last_table.Clear();
-@@ -3218,9 +3196,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
+@@ -3218,9 +3188,9 @@ void SequenceDB::DoClustering( int T, const Options & options )
  		last_table.size = word_table.size;
  		word_table.size = 0;
  	}
@@ -268,16 +478,56 @@ index 9582f22..2f77a05 100644
  	last_table.Clear();
  	word_table.Clear();
  }
-@@ -3526,7 +3504,7 @@ int SequenceDB::CheckOneEST( Sequence *seq, WordTable & table, WorkingParam & pa
+@@ -3346,17 +3316,17 @@ int SequenceDB::CheckOneAA( Sequence *seq, WordTable & table, WorkingParam & par
+ 		seqj = rep->data; //NR_seq[NR90_idx[j]];
+ 
+ 		band_width1 = (options.band_width < len+len2-2 ) ? options.band_width : len+len2-2;
+-		diag_test_aapn(NAA1, seqj, len, len2, buf, best_sum,
++		diag_test_aapn(options, NAA1, seqj, len, len2, buf, best_sum,
+ 				band_width1, band_left, band_center, band_right, required_aa1);
+ 		if ( best_sum < required_aa2 ) continue;
+ 
+ 		int rc = FAILED_FUNC;
+ 		if (options.print || aln_cover_flag) //return overlap region
+-			rc = local_band_align(seqi, seqj, len, len2, mat,
++			rc = local_band_align(seqi, seqj, len, len2, options,
+ 					best_score, tiden_no, alnln, distance, talign_info,
+ 					band_left, band_center, band_right, buf);
+ 		else
+-			rc = local_band_align(seqi, seqj, len, len2, mat,
++			rc = local_band_align(seqi, seqj, len, len2, options,
+ 					best_score, tiden_no, alnln, distance, talign_info, 
+ 					band_left, band_center, band_right, buf);
+ 		if ( rc == FAILED_FUNC ) continue;
+@@ -3511,14 +3481,14 @@ int SequenceDB::CheckOneEST( Sequence *seq, WordTable & table, WorkingParam & pa
+ 			}
+ 
+ 			band_width1 = (options.band_width < len+len2-2 ) ? options.band_width : len+len2-2;
+-			diag_test_aapn_est(NAA1, seqj, len, len2, buf, best_sum,
++			diag_test_aapn_est(options, NAA1, seqj, len, len2, buf, best_sum,
+ 					band_width1, band_left, band_center, band_right, required_aa1);
+ 			if ( best_sum < required_aas ) continue;
+ 			//if( comp and flag and (not options.cluster_best) and j > rep->cluster_id ) goto Break;
+ 
+ 			int rc = FAILED_FUNC;
+ 			if (options.print || aln_cover_flag){ //return overlap region
+-				rc = local_band_align(seqi, seqj, len, len2, mat,
++				rc = local_band_align(seqi, seqj, len, len2, options,
+ 						best_score, tiden_no, alnln, distance, talign_info,
+ 						band_left, band_center, band_right, buf);
+ 				if( comp ){
+@@ -3526,8 +3496,8 @@ int SequenceDB::CheckOneEST( Sequence *seq, WordTable & table, WorkingParam & pa
  					talign_info[1] = len - talign_info[1] - 1;
  				}
  			}else{
 -				//printf( "%5i %5i %5i %5i\n", band_width1, band_right-band_left, band_left, band_right );
+-				rc = local_band_align(seqi, seqj, len, len2, mat,
 +				// printf( "%5i %5i %5i %5i\n", band_width1, band_right-band_left, band_left, band_right );
- 				rc = local_band_align(seqi, seqj, len, len2, mat,
++				rc = local_band_align(seqi, seqj, len, len2, options,
  						best_score, tiden_no, alnln, distance, talign_info,
  						band_left, band_center, band_right, buf);
-@@ -3612,7 +3590,7 @@ void SequenceDB::ComputeDistance( const Options & options )
+ 			}
+@@ -3612,15 +3582,15 @@ void SequenceDB::ComputeDistance( const Options & options )
  		buf.EncodeWords( seq, options.NAA, false );
  		buf.ComputeAAP2( seqi, seq->size );
  		dists[i][i] = 0.0;
@@ -286,7 +536,29 @@ index 9582f22..2f77a05 100644
  		for(j=0; j<i; j++){
  			Sequence *rep = sequences[j];
  			char *seqj = rep->data;
-@@ -3732,7 +3710,7 @@ void SequenceDB::DoClustering( const Options & options )
+ 			int len2 = rep->size;
+ 			band_width1 = (options.band_width < len+len2-2 ) ? options.band_width : len+len2-2;
+-			diag_test_aapn_est(NAA1, seqj, len, len2, buf, best_sum,
++			diag_test_aapn_est(options, NAA1, seqj, len, len2, buf, best_sum,
+ 					band_width1, band_left, band_center, band_right, 0);
+-			local_band_align(seqi, seqj, len, len2, mat,
++			local_band_align(seqi, seqj, len, len2, options,
+ 					best_score, tiden_no, alnln, distance, talign_info,
+ 					band_left, band_center, band_right, buf);
+ 			dists[seq->index][rep->index] = dists[rep->index][seq->index] = distance;
+@@ -3637,9 +3607,9 @@ void SequenceDB::ComputeDistance( const Options & options )
+ 			char *seqj = rep->data;
+ 			int len2 = rep->size;
+ 			band_width1 = (options.band_width < len+len2-2 ) ? options.band_width : len+len2-2;
+-			diag_test_aapn_est(NAA1, seqj, len, len2, buf, best_sum,
++			diag_test_aapn_est(options, NAA1, seqj, len, len2, buf, best_sum,
+ 					band_width1, band_left, band_center, band_right, 0);
+-			local_band_align(seqi, seqj, len, len2, mat,
++			local_band_align(seqi, seqj, len, len2, options,
+ 					best_score, tiden_no, alnln, distance, talign_info,
+ 					band_left, band_center, band_right, buf);
+ 			if( distance < dists[seq->index][rep->index] )
+@@ -3732,7 +3702,7 @@ void SequenceDB::DoClustering( const Options & options )
  			m ++;
  		}
  		if( m > N ) m = N;
@@ -295,7 +567,7 @@ index 9582f22..2f77a05 100644
  		fflush( stdout );
  		for(int ks=i; ks<m; ks++){ // clustering this block
  			Sequence *seq = sequences[ks];
-@@ -3761,7 +3739,7 @@ void SequenceDB::DoClustering( const Options & options )
+@@ -3761,7 +3731,7 @@ void SequenceDB::DoClustering( const Options & options )
  			}
  			float p = (100.0*j)/N;
  			if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -304,7 +576,7 @@ index 9582f22..2f77a05 100644
  				fflush( stdout );
  				p0 = p;
  			}
-@@ -3770,16 +3748,16 @@ void SequenceDB::DoClustering( const Options & options )
+@@ -3770,16 +3740,16 @@ void SequenceDB::DoClustering( const Options & options )
  		//if( i && i < m ) printf( "\r---------- %6i remaining sequences to the next cycle\n", m-i );
  		word_table.Clear();
  	}
@@ -324,7 +596,7 @@ index 9582f22..2f77a05 100644
  #endif
  }
  
-@@ -3853,9 +3831,9 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3853,9 +3823,9 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  			seq->cluster_id = ks;
  			seq->state |= IS_REP;
  			if ( (ks+1) % 1000 == 0 ) {
@@ -336,7 +608,7 @@ index 9582f22..2f77a05 100644
  			}  
  		}
  		float p0 = 0;
-@@ -3894,7 +3872,7 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3894,7 +3864,7 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  				}
  				float p = (100.0*j)/M;
  				if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -345,7 +617,7 @@ index 9582f22..2f77a05 100644
  					fflush( stdout );
  					p0 = p;
  				}
-@@ -3929,13 +3907,13 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3929,13 +3899,13 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  				}
  				float p = (100.0*j)/M;
  				if( p > p0+1E-1 ){ // print only if the percentage changed
@@ -361,7 +633,7 @@ index 9582f22..2f77a05 100644
  		word_table.Clear();
  		word_table.size = 0;
  		i = m;
-@@ -3956,8 +3934,8 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
+@@ -3956,8 +3926,8 @@ void SequenceDB::ClusterTo( SequenceDB & other, const Options & options )
  		if( not(seq->state & IS_REDUNDANT) ) rep_seqs.Append( i );
  	}
  

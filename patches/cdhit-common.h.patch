@@ -1,8 +1,72 @@
 diff --git a/cdhit-common.h b/cdhit-common.h
-index ee26448..810a4f3 100644
+index ee26448..a2f4a11 100644
 --- a/cdhit-common.h
 +++ b/cdhit-common.h
-@@ -619,7 +619,7 @@ int local_band_align( char query[], char ref[], int qlen, int rlen, ScoreMatrix
+@@ -181,7 +181,7 @@ class ScoreMatrix { //Matrix
+ 		ScoreMatrix();
+ 		void init();
+ 		void set_gap(int gap1, int ext_gap1);
+-		void set_matrix(int *mat1);
++		void set_matrix(const int *mat1);
+ 		void set_to_na();
+ 		void set_match( int score );
+ 		void set_mismatch( int score );
+@@ -296,6 +296,7 @@ struct Options
+ 	bool    has2D;
+ 	bool    isEST;
+ 	bool    is454;
++	bool 	isNucleotide;
+ 	bool    useIdentity;
+ 	bool    useDistance;
+ 	bool    backupFile;
+@@ -310,6 +311,8 @@ struct Options
+     int     sort_output;  // -sc
+     int     sort_outputf; // -sf
+ 
++	ScoreMatrix mat;
++
+ 	Options(){
+ 		backupFile = false;
+ 		useIdentity = false;
+@@ -317,6 +320,7 @@ struct Options
+ 		has2D = false;
+ 		isEST = false;
+ 		is454 = false;
++		isNucleotide = false;
+ 		NAA = 5;
+ 		NAA_top_limit = 5;
+ 		cluster_thd = 0.9;
+@@ -420,7 +424,7 @@ struct Sequence
+ 	void Swap( Sequence & other );
+ 	int Format();
+ 
+-	void ConvertBases();
++	void ConvertBases( bool nucleotide );
+     void trim(int trim_len);
+ 
+ 	void SwapIn();
+@@ -531,7 +535,6 @@ struct WorkingBuffer
+ 	void ComputeAAP2( const char *seqi, int size );
+ };
+ extern Vector<int>  Comp_AAN_idx;
+-extern ScoreMatrix  mat;
+ 
+ 
+ class SequenceDB
+@@ -609,17 +612,17 @@ void bomb_error(const char *message, const char *message2);
+ void bomb_warning(const char *message);
+ void bomb_warning(const char *message, const char *message2);
+ void format_seq(char *seq);
+-int diag_test_aapn(int NAA1, char iseq2[], int len1, int len2, 
++int diag_test_aapn(const Options& options, int NAA1, char iseq2[], int len1, int len2, 
+ 		WorkingBuffer & buffer, int &best_sum,
+ 		int band_width, int &band_left, int &band_center, int &band_right, int required_aa1);
+-int diag_test_aapn_est(int NAA1, char iseq2[], int len1, int len2, 
++int diag_test_aapn_est(const Options& options, int NAA1, char iseq2[], int len1, int len2, 
+ 		WorkingBuffer & buffer, int &best_sum,
+ 		int band_width, int &band_left, int &band_center, int &band_right, int required_aa1);
+-int local_band_align( char query[], char ref[], int qlen, int rlen, ScoreMatrix &mat, 
++int local_band_align( char query[], char ref[], int qlen, int rlen, const Options &mat, 
  		int &best_score, int &iden_no, int &alnln, float &dist, int *alninfo,
  		int band_left, int band_center, int band_right, WorkingBuffer & buffer);
  

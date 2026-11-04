@@ -17,6 +17,7 @@ cdef Options DEFAULT_OPTIONS = Options()
 
 import array
 import dataclasses
+import os
 import typing
 
 __version__ = PROJECT_VERSION
@@ -38,7 +39,8 @@ def cluster(
     sequences: typing.Iterable[str], 
     *, 
     cpus: typing.Optional[int] = None,
-    identity_threshold: float = DEFAULT_OPTIONS.cluster_thd,
+    identity_threshold: typing.Optional[float] = None,
+    est: bool = False,
 ) -> array.array:
     cdef ssize_t     length
     cdef size_t      i
@@ -52,9 +54,24 @@ def cluster(
     options.threads = 1     # use a single thread (for now)
     options.input = "n/a"   # bogus filename so CD-HIT doesn't complain
     options.output = "n/a"  # bogus filename so CD-HIT doesn't complain
+        
+    if cpus is None or cpus <= 0:
+        _cpus = os.cpu_count() or 1
+        options.threads = max()
+
+    if est:
+        options.isEST = True
+        if identity_threshold is None:
+            options.cluster_thd = 0.95
+        options.NAA = 10
+        options.NAAN = db.NAAN = cdhit.NAA8
+        options.NAA_top_limit = 12
+
     
-    options.cluster_thd = identity_threshold
-    
+    if identity_threshold is not None:
+        options.cluster_thd = identity_threshold
+
+
     try:
         options.Validate()
     except Exception as exc:
