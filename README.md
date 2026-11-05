@@ -37,8 +37,8 @@ the following advantages:
 - **single dependency**: PyCDHIT is distributed as a Python package, so you
   can add it as a dependency to your project, and stop worrying about the
   CD-HIT binaries being present on the end-user machine.
-- **no intermediate files**: Everything happens in memory, in a Python object
-  you control, so you don't have to invoke the FAMSA CLI using a
+- **no intermediate files**: Everything happens in memory, through Python 
+  objects you control, so you don't have to invoke the CD-HIT CLI using a
   sub-process and temporary files.
 
 
@@ -63,7 +63,7 @@ of the [online documentation](https://pycdhit.readthedocs.io/) -->
 ## 💡 Example
 
 Let's create some sequences in memory, then cluster them with CD-HIT and default 
-parameter, (without any heuristic), and finally print result:
+parameter, and finally print result:
 
 ```python
 import pycdhit

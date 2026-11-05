@@ -28,20 +28,5 @@ cdef extern from "cdhit-common.h" nogil:
         IS_PROCESSED
         IS_MINUS_STRAND
 
-    int NAA1 
-    int NAA2 
-    int NAA3 
-    int NAA4 
-    int NAA5 
-    int NAA6 
-    int NAA7 
-    int NAA8 
-    int NAA9 
-    int NAA10
-    int NAA11
-    int NAA12
-    int[13] NAAN_array
-
-    void InitNAA(int max)
 
     

@@ -10,6 +10,7 @@ cdef extern from "cdhit-common.h" nogil:
         int     NAA
         int     NAAN
         int     NAA_top_limit
+        int[13] NAAN_array
 
         size_t  max_memory  #  -M: 400,000,000 in bytes
         int     min_length  #  -l: 10 bases
@@ -72,6 +73,7 @@ cdef extern from "cdhit-common.h" nogil:
         bool SetOptionEST( const char *flag, const char *value ) except +
         bool SetOptions( int argc, char *argv[], bool twodata=false, bool est=false ) except +
 
+        void InitNAA(int max)
         void Validate() except +
         void ComputeTableLimits( int min_len, int max_len, int typical_len, size_t mem_need ) except +
         void Print() except +
