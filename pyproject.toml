@@ -1,5 +1,5 @@
 [build-system]
-requires = ['scikit-build-core', 'cython ~=3.0']
+requires = ['scikit-build-core', 'cython ~=3.0', 'scoring-matrices ~=0.3.0']
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -33,6 +33,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "Typing :: Typed",
+]
+dependencies = [
+    "scoring-matrices ~=0.3.0",
 ]
 
 [project.optional-dependencies]
